@@ -167,5 +167,44 @@ table(test_strat$Attrition) %>% prop.table()
 ```
 
 
+```{r}
+
+# One hot encoding makes a dataset wide.
+dummy_ames <- dummyVars("~.",ames)
+data_transformed <- predict(dummy_ames, newdata = ames) 
+data_transformed <- as.data.frame(data_transformed)
+
+ames_scaled <- scale(data_transformed)
+
+pca_result <- prcomp(ames_scaled, center = TRUE, scale. = TRUE)
+
+
+# Sample data with a multi-level categorical variable
+your_data <- data.frame(
+  Category = c("A", "B", "C", "A", "B", "C"),
+  Value1 = c(1, 2, 3, 4, 5, 6),
+  Value2 = c(6, 5, 4, 3, 2, 1)
+)
+
+# Load necessary libraries
+library(caret)
+
+# Create dummy variables for categorical data
+dummy <- dummyVars(" ~ .", data = your_data)
+data_transformed <- predict(dummy, newdata = your_data)
+data_transformed <- as.data.frame(data_transformed)
+
+# View transformed data
+print(data_transformed)
+
+dummy_scaled <- scale(data_transformed)
+
+pca_result <- prcomp(ames_scaled, center = TRUE, scale. = TRUE)
+
+
+#https://bradleyboehmke.github.io/HOML/process.html#splitting 2.51
+
+
+```
 
 
