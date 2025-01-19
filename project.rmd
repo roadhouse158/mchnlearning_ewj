@@ -1,0 +1,171 @@
+---
+title: "hands on machine learning"
+author: "Eric"
+date: "2025-01-18"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+
+# https://bradleyboehmke.github.io/HOML/intro.html
+
+# access data
+ames <- AmesHousing::make_ames()
+
+# initial dimension
+dim(ames)
+## [1] 2930   81
+
+# response variable
+head(ames$Sale_Price)
+## [1] 215000 105000 172000 244000 189900 195500ljimpn`adbbgdADBBGDGBFVADCRA  q2dtnhyudA1DGBVIKBGFVAZDGFFVTAEDCRADCTFVRFR5DAQ2B B*]/54  
+
+
+#===============================================================================
+
+# access data
+attrition <- modeldata::attrition
+
+# initial dimension
+dim(attrition)
+## [1] 1470   31
+
+# response variable
+head(attrition$Attrition)
+## [1] Yes No  Yes No  No  No 
+## Levels: No Yes
+
+
+invisible(gc())
+
+#===============================================================================
+
+#access data
+mnist <- dslabs::read_mnist()
+names(mnist)
+## [1] "train" "test"
+
+# initial feature dimensions
+dim(mnist$train$images)
+## [1] 60000   784
+
+# response variable
+head(mnist$train$labels)
+## [1] 5 0 4 1 9 2
+
+invisible(gc())
+
+
+#===============================================================================
+
+# URL to download/read in the data
+url <- "https://koalaverse.github.io/homlr/data/my_basket.csv"
+
+# Access data
+my_basket <- readr::read_csv(url)
+
+# Print dimensions
+dim(my_basket)
+## [1] 2000   42
+
+# Peek at response variable
+head(my_basket)
+
+
+invisible(gc())
+```
+
+```{r}
+
+# Helper packages
+library(dplyr)     # for data manipulation
+library(ggplot2)   # for awesome graphics
+
+# Modeling process packages
+library(rsample)   # for resampling procedures
+library(caret)     # for resampling and model training
+# library(h2o)       # for resampling and model training
+# 
+# # h2o set-up 
+# h2o.no_progress()  # turn off h2o progress bars
+# h2o.init()         # launch h2o
+
+
+invisible(gc())
+
+```
+
+
+<!-- # Coverting to an H2o object -->
+```{r}
+
+# ames.h2o <- as.h2o(ames)
+# 
+# # Job attrition data
+
+
+churn <-attrition %>%
+  mutate_if(is.ordered, .funs = factor, ordered = FALSE)
+
+
+# churn.h2o <- as.h2o(churn)
+
+```
+
+
+# Creating training / testing sets
+
+```{r}
+
+# Using rsample package
+set.seed(123)  # for reproducibility
+split  <- initial_split(ames, prop = 0.7)
+train  <- training(split)
+test   <- testing(split)
+
+# Using h2o package
+# split_2 <- h2o.splitFrame(ames.h2o, ratios = 0.7,seed = 123)
+# train_4 <- split_2[[1]]
+# test_4  <- split_2[[2]]
+
+
+train %>% 
+ggplot(aes(x = Sale_Price )) +
+  geom_density(color = "red") +
+  geom_density(data = test,aes(x = Sale_Price ),color = "navy") 
+
+
+invisible(gc())
+
+```
+
+
+```{r}
+
+# orginal response distribution
+table(churn$Attrition) %>% prop.table()
+
+
+# stratified sampling with the rsample package
+set.seed(123)
+split_strat  <- initial_split(churn, prop = 0.7,strata = "Attrition")
+train_strat  <- training(split_strat)
+test_strat   <- testing(split_strat)
+
+# consistent response ratio between train & test
+table(train_strat$Attrition) %>% prop.table()
+
+table(test_strat$Attrition) %>% prop.table()
+
+
+```
+
+
+
+
